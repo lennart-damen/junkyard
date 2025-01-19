@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.quarkus.logging.Log;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.openapi.quarkus.source_api_json.api.ActivitiesApi;
 import org.openapi.quarkus.source_api_json.model.Activity;
@@ -19,12 +20,14 @@ public class APIIngester {
     @RestClient
     ActivitiesApi activitiesApi;
 
+    @ConfigProperty(name = "application.data-directory")
+    String dataDirectory;
+
     @Scheduled(every = "PT1M")
     public void ingest() throws IOException {
         Log.info("Starting ingestion...");
         List<Activity> activities = activitiesApi.apiV1ActivitiesGet();
-        String dataFolder = "/Users/lennartdamen/Documents/code/junkyard/quarkus-etl/data";
-        String filePath = getFilePath(dataFolder);
+        String filePath = getFilePath(dataDirectory);
         JsonMapper objectMapper = JsonMapper.builder().findAndAddModules().build();
         objectMapper.writeValue(new File(filePath), activities);
         Log.info("Ingestion successful!");
