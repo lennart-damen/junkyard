@@ -1,9 +1,11 @@
 package org.mycompany.myproject;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.logging.Log;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.openapi.quarkus.source_api_json.api.ActivitiesApi;
@@ -23,6 +25,9 @@ public class APIIngester {
     @ConfigProperty(name = "application.data-directory")
     String dataDirectory;
 
+    @Inject
+    MeterRegistry registry;
+
     @Scheduled(every = "PT1M")
     public void ingest() throws IOException {
         Log.info("Starting ingestion...");
@@ -38,5 +43,10 @@ public class APIIngester {
         LocalDateTime currentDateTime = LocalDateTime.now();
         String formattedDateTime = currentDateTime.format(formatter);
         return folder + "/" + formattedDateTime + ".json";
+    }
+
+    @Scheduled(every = "PT5S")
+    public void increaseCounter() {
+        registry.counter("app_custom_count").increment();
     }
 }
