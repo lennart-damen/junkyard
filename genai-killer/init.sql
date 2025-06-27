@@ -1,3 +1,4 @@
+-- TODO add foreign keys
 CREATE TABLE profiles (
     id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY,
     name TEXT NOT NULL,
@@ -8,6 +9,17 @@ CREATE TABLE profiles (
     n_following INTEGER,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE followers (
+    id SERIAL PRIMARY KEY,
+    follower_id INTEGER NOT NULL,
+    followee_id INTEGER NOT NULL,
+    followed_at TIMESTAMP DEFAULT current_timestamp,
+    UNIQUE (follower_id, followee_id),
+    FOREIGN KEY (follower_id) REFERENCES profiles (id) ON DELETE CASCADE,
+    FOREIGN KEY (followee_id) REFERENCES profiles (id) ON DELETE CASCADE,
+    CHECK (follower_id <> followee_id)
 );
 
 CREATE TABLE posts (
