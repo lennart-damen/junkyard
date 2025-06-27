@@ -1,0 +1,10 @@
+groups:
+  - name: http_alerts
+    rules:
+      - alert: HighHttpErrorRate
+        expr: sum by (status) (increase(http_requests_total{status!~"2.."}[5m])) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP requests return errors"
+          description: "Non-200 status codes detected in the last 5 minutes. Fires immediately (because 'for' keyword was not included)"
