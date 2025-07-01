@@ -1,0 +1,14 @@
+-- Ensure we are running as the superuser
+DO
+$$
+BEGIN
+   IF session_user != 'postgres' THEN
+      RAISE EXCEPTION 'This script must be run as the postgres superuser. Current user: %', session_user;
+   END IF;
+END
+$$;
+
+
+CREATE ROLE {{PG_USER}} WITH LOGIN PASSWORD '{{PG_PASS}}';
+CREATE DATABASE {{PG_DB}} OWNER {{PG_USER}};
+GRANT ALL PRIVILEGES ON DATABASE {{PG_DB}} TO {{PG_USER}};
